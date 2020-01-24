@@ -1,2 +1,3 @@
-# desinformation
-Dataviz project about désinformation
+# Projet de visualisation interractive de données
+
+
