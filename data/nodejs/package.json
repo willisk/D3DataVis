@@ -1,0 +1,17 @@
+{
+  "name": "data-parser",
+  "version": "1.0.0",
+  "description": "parse xlsx to json",
+  "main": "parser.js",
+  "scripts": {
+    "build": "node parser.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "k",
+  "license": "ISC",
+  "repository": "https://github.com/quenting44/desinformation",
+  "dependencies": {
+    "convert-excel-to-json": "^1.6.1",
+    "fs-extra": "^8.1.0"
+  }
+}
