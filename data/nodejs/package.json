@@ -11,6 +11,7 @@
   "license": "ISC",
   "repository": "https://github.com/quenting44/desinformation",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "convert-excel-to-json": "^1.6.1",
     "fs-extra": "^8.1.0"
   }
