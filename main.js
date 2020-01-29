@@ -1,4 +1,14 @@
-// Feel free to change or delete any of the code you see in this editor!
+
+
+var jsonData;
+
+$.getJSON('./test.json', function (obj) {
+    console.log(obj.details.ProductID);
+});
+// https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/fl_464_Volume_A.json
+
+
+
 var svg = d3.select("body").append("svg")
     .attr("width", 960)
     .attr("height", 500)

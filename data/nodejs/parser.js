@@ -9,11 +9,13 @@ const Promise = require("bluebird");
 const rawDir = '../raw/';
 const dirOut = '../parsed/';
 
-parseDirRec(rawDir);
+var Index = parseDirRec(rawDir);
+fs.writeFile(path.join(dirOut, 'index.txt'), Index.join('\n'));
 
 function parseDirRec(dir) {
 
     const files = fs.readdirSync(dir);
+    let Index = [];
 
     for (let i = 0; i < files.length; i++) {
 
@@ -27,15 +29,15 @@ function parseDirRec(dir) {
             if (isXls) {
                 const fileNameOut = fileName.replace(/xls/g, 'json').replace(rawDir, dirOut);
                 const json = parseXls(fileName, fileNameOut);
-                fs.writeFile(fileNameOut, JSON.stringify(json), function (err) {
-                    if (err) { console.log(err); }
-                });
-
+                fs.writeFile(fileNameOut, JSON.stringify(json));
+                Index.push(fileNameOut.replace(dirOut, ''));
             }
         }
         else
-            parseDirRec(fileName);
+            Index = Index.concat(parseDirRec(fileName));
     }
+
+    return Index;
 }
 
 function parseXls(fileName) {
@@ -51,7 +53,6 @@ function parseXls(fileName) {
     for (let sheetName in jsonData) {
 
         if (sheetName == 'Index')
-            // if (sheetName != 'D1.1')
             continue;
 
         const sheetXls = jsonData[sheetName];
@@ -99,12 +100,17 @@ function parseXls(fileName) {
             let keyFr = row1.splice(0, 1)[0];
             let keyEng = keyEngExists ? row2.splice(0, 1)[0] : keyFr;
 
+            let data = [row1];
+            if (row2Exists)
+                data.push(row2);
+
             sheet.questions.push(
                 {
                     key: keyEng,
                     keyFr: keyFr,
-                    answerCount: row1,
-                    answerPercent: row2
+                    data: data
+                    // answerCount: row1,
+                    // answerPercent: row2
                 }
             );
         }
