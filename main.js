@@ -1,11 +1,41 @@
 
 
+const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/';
+const urlData = urlBase + 'data/parsed/';
+const urlIndex = urlData + 'index.txt';
+
+var Index;
+fetch(urlIndex).then((response) => {
+    response.text().then((text) => {
+        Index = text.split('\n').map((relUrl) => { return urlData + relUrl; });
+        fetchJson(Index[0]);
+    });
+});
+
+function fetchJson(url) {
+    $.getJSON(url, function (data) {
+        plot(data);
+    });
+}
+
+function plot(obj) {
+    console.log(obj);
+}
+
+
 var jsonData;
 
-$.getJSON('./test.json', function (obj) {
+
+console.log('called');
+$.getJSON(urlIndex, function (obj) {
+    console.log('called');
     console.log(obj.details.ProductID);
 });
-// https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/fl_464_Volume_A.json
+
+function done() {
+    document.getElementById('log').textContent =
+        "Here's what I got! \n" + storedText;
+}
 
 
 

@@ -65,7 +65,7 @@ function parseXls(fileName) {
             phraseFr: "",
             total: 0,
             groups: [],
-            questions: []
+            query: []
         };
 
         // search for 'TOTAL' keyword to determine bodyStart; first non-empty entry for phraseFr
@@ -104,13 +104,11 @@ function parseXls(fileName) {
             if (row2Exists)
                 data.push(row2);
 
-            sheet.questions.push(
+            sheet.query.push(
                 {
                     key: keyEng,
                     keyFr: keyFr,
                     data: data
-                    // answerCount: row1,
-                    // answerPercent: row2
                 }
             );
         }
@@ -158,6 +156,7 @@ function parseXls(fileName) {
         if (groupMetaRowIdx != groupRowIdx) {
             groupMeta = header[groupMetaRowIdx + 2]; // XXX always assume eng version is 2 below french ?
             groupMetaFr = header[groupMetaRowIdx];
+            header.splice(groupMetaRowIdx, 3);  // dangerous, verify
         }
 
         function xlColNum(colStr) {
