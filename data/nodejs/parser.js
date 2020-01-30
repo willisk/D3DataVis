@@ -65,7 +65,7 @@ function parseXls(fileName) {
             phraseFr: "",
             total: 0,
             groups: [],
-            query: []
+            inquiry: []
         };
 
         // search for 'TOTAL' keyword to determine bodyStart; first non-empty entry for phraseFr
@@ -104,7 +104,7 @@ function parseXls(fileName) {
             if (row2Exists)
                 data.push(row2);
 
-            sheet.query.push(
+            sheet.inquiry.push(
                 {
                     key: keyEng,
                     keyFr: keyFr,
@@ -122,7 +122,7 @@ function parseXls(fileName) {
         // -----------
         // total count row
         var total = Object.values(header.pop()).slice(1);
-        var phraseRow = Object.values(header[phraseIdx]);
+        var phraseRow = Object.values(header.splice(phraseIdx, 1)); // XXX verify splice
         sheet.phraseFr = phraseRow[0];
         sheet.phrase = phraseRow[(phraseRow.length > 2) ? 2 : 1];
 
