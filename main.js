@@ -1,6 +1,6 @@
 
 
-const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/';
+const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/';
 
 loadData(urlBase)
     .then((data) => {
