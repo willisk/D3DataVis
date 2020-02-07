@@ -16,6 +16,7 @@ function parseDirRec(dir) {
 
     const files = fs.readdirSync(dir);
     let Index = [];
+    let fullJson = {};
 
     for (let i = 0; i < files.length; i++) {
 
@@ -27,15 +28,19 @@ function parseDirRec(dir) {
             let isXls = (/(.+?)\.xls/g).exec(files[i]);
 
             if (isXls) {
-                const fileNameOut = fileName.replace(/xls/g, 'json').replace(rawDir, dirOut);
-                const json = parseXls(fileName, fileNameOut);
+                let fileNameOut = fileName.replace(/xls/g, 'json').replace(rawDir, dirOut);
+                let json = parseXls(fileName);
+                json.name = /([^\/\n]+)\.xls/g.exec(files[i])[1];
                 fs.writeFile(fileNameOut, JSON.stringify(json));
                 Index.push(fileNameOut.replace(dirOut, ''));
+                fullJson[json.name] = json;
             }
         }
         else
             Index = Index.concat(parseDirRec(fileName));
     }
+
+    fs.writeFile(path.join(dir, 'all.json'), JSON.stringify(fullJson));
 
     return Index;
 }
