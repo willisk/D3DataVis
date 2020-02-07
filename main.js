@@ -3,10 +3,15 @@
 // const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/';
 const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/';
 
-loadDataFull(urlBase)
-    .then((data) => {
-        plotInquiry(data);
-    });
+const url = urlBase + 'data/parsed/all.json';
+
+$.getJSON(url, (obj) => {
+    plotInquiry(obj);
+});
+// plotInquiry(loadDataFull(urlBase))
+// .then((data) => {
+//     plotInquiry(data);
+// });
 
 
 // var svg = d3.select("body").append("svg");

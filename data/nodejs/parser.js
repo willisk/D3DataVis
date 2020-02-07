@@ -9,14 +9,18 @@ const Promise = require("bluebird");
 const rawDir = '../raw/';
 const dirOut = '../parsed/';
 
-var Index = parseDirRec(rawDir);
+var fullJson = {};
+var Index = parseDirRec(rawDir, fullJson);
 fs.writeFile(path.join(dirOut, 'index.txt'), Index.join('\n'));
+let fileNameOutFull = path.join(dirOut, 'all.json');
+fs.writeFile(fileNameOutFull, JSON.stringify(fullJson));
 
-function parseDirRec(dir) {
+
+function parseDirRec(dir, fullJson) {
 
     const files = fs.readdirSync(dir);
     let Index = [];
-    let fullJson = {};
+    // let fullJson = {};
 
     for (let i = 0; i < files.length; i++) {
 
@@ -37,11 +41,8 @@ function parseDirRec(dir) {
             }
         }
         else
-            Index = Index.concat(parseDirRec(fileName));
+            Index = Index.concat(parseDirRec(fileName, fullJson));
     }
-
-    let fileNameOut = path.join(dir, 'all.json').replace(rawDir, dirOut);
-    fs.writeFile(fileNameOut, JSON.stringify(fullJson));
 
     return Index;
 }
