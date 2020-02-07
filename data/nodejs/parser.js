@@ -40,7 +40,8 @@ function parseDirRec(dir) {
             Index = Index.concat(parseDirRec(fileName));
     }
 
-    fs.writeFile(path.join(dir, 'all.json'), JSON.stringify(fullJson));
+    let fileNameOut = path.join(dir, 'all.json').replace(rawDir, dirOut);
+    fs.writeFile(fileNameOut, JSON.stringify(fullJson));
 
     return Index;
 }
