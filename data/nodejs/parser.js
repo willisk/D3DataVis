@@ -12,15 +12,25 @@ const dirOut = '../parsed/';
 var fullJson = {};
 var Index = parseDirRec(rawDir, fullJson);
 fs.writeFile(path.join(dirOut, 'index.txt'), Index.join('\n'));
-let fileNameOutFull = path.join(dirOut, 'all.json');
-fs.writeFile(fileNameOutFull, JSON.stringify(fullJson));
+fs.writeFile(path.join(dirOut, 'all.json'), JSON.stringify(fullJson));
+
+var IndexJson = {};
+for (let volume of Object.keys(fullJson)) {
+    IndexJson[volume] = {};
+    for (let sheet of Object.keys(fullJson[volume])) {
+        IndexJson[volume][sheet] = {
+            phrase: fullJson[volume][sheet].phrase,
+            phraseFr: fullJson[volume][sheet].phraseFr
+        };  // add total and groups?
+    }
+}
+fs.writeFile(path.join(dirOut, 'Index.json'), JSON.stringify(IndexJson));
 
 
 function parseDirRec(dir, fullJson) {
 
     const files = fs.readdirSync(dir);
     let Index = [];
-    // let fullJson = {};
 
     for (let i = 0; i < files.length; i++) {
 
@@ -129,7 +139,7 @@ function parseXls(fileName) {
         // -----------
         // total count row
         var total = Object.values(header.pop()).slice(1);
-        var phraseRow = Object.values(header.splice(phraseIdx, 1)); // XXX verify splice
+        var phraseRow = Object.values(header.splice(phraseIdx, 1)[0]); // XXX verify splice
         sheet.phraseFr = phraseRow[0];
         sheet.phrase = phraseRow[(phraseRow.length > 2) ? 2 : 1];
 

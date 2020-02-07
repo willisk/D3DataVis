@@ -1,17 +1,21 @@
 
 
-// const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/';
-const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/';
+// const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/data/parsed/';
+const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/';
 
-const url = urlBase + 'data/parsed/all.json';
-
-$.getJSON(url, (obj) => {
-    plotInquiry(obj);
+// var all = await $.getJSON(urlBase + 'all.json');
+var all;
+$.getJSON(urlBase + 'all.json', (obj) => {
+    all = obj;
 });
-// plotInquiry(loadDataFull(urlBase))
-// .then((data) => {
-//     plotInquiry(data);
-// });
+
+volumeNames(urlBase).then((names) => {
+    var options = d3.select("#volume").selectAll("option")
+        .data(names)
+        .enter().append("option")
+        .text(d => d)
+    // chart(names);
+})
 
 // --------------------------------------------------
 // INIT
@@ -45,7 +49,7 @@ $.getJSON(url, (obj) => {
 // init();
 // drawMargin();
 
-d3.csv("data.csv").then(d => chart(d))
+d3.csv("https://raw.githubusercontent.com/willisk/D3DataVis/master/data.csv").then(d => chart(d))
 
 function chart(csv) {
 
