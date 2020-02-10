@@ -9,13 +9,56 @@ $.getJSON(urlBase + 'all.json', (obj) => {
     all = obj;
 });
 
-volumeNames(urlBase).then((names) => {
-    var options = d3.select("#volume").selectAll("option")
-        .data(names)
+var indexJson;
+$.getJSON(urlBase + 'Index.json', (obj) => {
+    indexJson = obj;
+    let volumes = Object.keys(indexJson);
+    d3.select("#volume").selectAll("option")
+        .data(volumes)
         .enter().append("option")
         .text(d => d)
-    // chart(names);
-})
+
+
+    function update() {
+
+        // update Selectors
+        let volumeVal = $('#volume').val();
+
+        let sheets = Object.keys(indexJson[volumeVal]);
+        d3.select("#sheet").selectAll("option")
+            .data(sheets)
+            .enter().append("option")
+            .text(d => d)
+
+        let sheetVal = $('#sheet').val();
+
+        let rubrics = indexJson[volumeVal][sheetVal].map(sheet => sheet.phrase);
+        d3.select("#rubric").selectAll("option")
+            .data(rubrics)
+            .enter().append("option")
+            .text(d => d)
+
+        let rubricVal = $('#rubric').val();
+
+        console.log(volumeVal);
+        console.log(sheetVal);
+        console.log(rubricVal);
+    }
+
+    d3.select('#volume')
+        .on("change", update)
+
+    d3.select('#sheet')
+        .on("change", update)
+
+    d3.select('#rubric')
+        .on("change", update)
+
+    update();
+
+
+});
+
 
 // --------------------------------------------------
 // INIT

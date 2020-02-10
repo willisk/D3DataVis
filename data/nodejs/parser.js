@@ -14,17 +14,21 @@ var Index = parseDirRec(rawDir, fullJson);
 fs.writeFile(path.join(dirOut, 'index.txt'), Index.join('\n'));
 fs.writeFile(path.join(dirOut, 'all.json'), JSON.stringify(fullJson));
 
-var IndexJson = {};
-for (let volume of Object.keys(fullJson)) {
-    IndexJson[volume] = {};
-    for (let sheet of Object.keys(fullJson[volume])) {
-        IndexJson[volume][sheet] = {
-            phrase: fullJson[volume][sheet].phrase,
-            phraseFr: fullJson[volume][sheet].phraseFr
-        };  // add total and groups?
-    }
-}
-fs.writeFile(path.join(dirOut, 'Index.json'), JSON.stringify(IndexJson));
+// var IndexJson = {};
+// for (let volume of Object.keys(fullJson)) {
+//     IndexJson[volume] = {};
+//     for (let sheet of Object.keys(fullJson[volume])) {
+//         IndexJson[volume][sheet] = {
+//             phrase: fullJson[volume][sheet].phrase,
+//             phraseFr: fullJson[volume][sheet].phraseFr,
+//             inquiry: fullJson[volume][sheet].inquiry.map(obj => obj.key),
+//             inquiryFr: fullJson[volume][sheet].inquiry.map(obj => obj.keyFr),
+//             groups: fullJson[volume][sheet].groups.map(gr => gr.name),
+//             groupsFr: fullJson[volume][sheet].groups.map(gr => gr.nameFr)
+//         };
+//     }
+// }
+// fs.writeFile(path.join(dirOut, 'Index.json'), JSON.stringify(IndexJson));
 
 
 function parseDirRec(dir, fullJson) {
