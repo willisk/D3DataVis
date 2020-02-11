@@ -1,6 +1,6 @@
 
 
-const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/data/parsed/';
+const urlBase = 'https://raw.githubusercontent.com/quenting44/desinformation/master/data/parsed/';
 
 
 var all;
