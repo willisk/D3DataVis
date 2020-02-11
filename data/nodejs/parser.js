@@ -47,11 +47,11 @@ function parseDirRec(dir, fullJson) {
 
             if (isXls) {
                 let fileNameOut = fileName.replace(/xls/g, 'json').replace(rawDir, dirOut);
-                let json = parseXls(fileName);
-                // json.name = /([^\/\n]+)\.xls/g.exec(files[i])[1];
-                fs.writeFile(fileNameOut, JSON.stringify(json));
+                let volume = parseXls(fileName);
+                let volumeName = /([^\/\n]+)\.xls/g.exec(files[i])[1];
+                fs.writeFile(fileNameOut, JSON.stringify(volume));
                 Index.push(fileNameOut.replace(dirOut, ''));
-                fullJson[json.name] = json;
+                fullJson[volumeName] = volume;
             }
         }
         else
