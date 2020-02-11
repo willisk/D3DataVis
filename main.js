@@ -1,13 +1,6 @@
 
 
-// const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/data/parsed/';
-const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/';
-
-// var all = await $.getJSON(urlBase + 'all.json');
-// var all;
-// $.getJSON(urlBase + 'all.json', (obj) => {
-//     all = obj;
-// });
+const urlBase = 'https://raw.githubusercontent.com/quenging44/desinformation/master/data/parsed/';
 
 
 var all;
@@ -21,11 +14,12 @@ $.getJSON(urlBase + 'all.json', (data) => {
         .text(d => d)
 
 
-    function update() {
+    function update(speed = 500) {
 
         // update dropdown selectors
         let volumeVal = $('#volume option:selected').val();
 
+        // sheets
         let sheets = Object.keys(data[volumeVal]);
         let sheetOptions = d3.select("#sheet").selectAll("option")
             .data(sheets)
@@ -35,23 +29,31 @@ $.getJSON(urlBase + 'all.json', (data) => {
 
         sheetOptions
             .enter().append("option")
+            .merge(sheetOptions)
             .text(d => `${data[volumeVal][d].phrase}`.replace(/([^\(]+).*/, '$1'))
             .property('value', d => d)
 
         let sheetVal = $('#sheet option:selected').val();
 
+        // rubrics
         let rubrics = data[volumeVal][sheetVal].inquiry.map(inq => inq.key);
-        d3.select("#rubric").selectAll("option")
+        let rubricOptions = d3.select("#rubric").selectAll("option")
             .data(rubrics)
+
+        rubricOptions
+            .exit().remove();
+
+        rubricOptions
             .enter().append("option")
+            .merge(rubricOptions)
             .text(d => d)
 
-        let rubricVal = $('#rubric option:selected').val();
+        let rubricVal = $('#rubric option:selected').index();
 
-        console.log(volumeVal);
-        console.log(sheetVal);
-        console.log(rubricVal);
-        updateGraph(data[volumeVal][sheetVal], rubricVal);
+        // console.log(volumeVal);
+        // console.log(sheetVal);
+        // console.log(rubricVal);
+        updateGraph(data[volumeVal][sheetVal], rubricVal, speed);
     }
 
     d3.select('#volume')
@@ -63,7 +65,7 @@ $.getJSON(urlBase + 'all.json', (data) => {
     d3.select('#rubric')
         .on("change", update)
 
-    update();
+    update(0);
 
 
 });
@@ -92,10 +94,10 @@ var xAxis = g.append("g")
 
 var yAxis = g.append("g");
 
-function updateGraph(sheet, rubric) {
+function updateGraph(sheet, rubric, speed = 500) {
 
     var groups = sheet.groups.map(d => d.name);
-    var data = sheet.inquiry.filter(d => d.key == rubric)[0].data[0]; // XXX not pretty, change
+    var data = sheet.inquiry[rubric].data[0];
 
     x.domain(groups);
     y.domain([0, d3.max(data)]);
@@ -111,14 +113,16 @@ function updateGraph(sheet, rubric) {
     yAxis
         .call(d3.axisLeft(y))
 
-    var bar = g.selectAll(".bar")
+    var bars = g.selectAll(".bar")
         .data(data)
 
-    bar
+    bars
         .exit().remove();
-    bar
+    bars
         .enter().append("rect")
+        .merge(bars)
         .attr("class", "bar")
+        .transition().duration(speed)
         .attr("x", (d, i) => x(groups[i]))
         .attr("y", d => y(d))
         .attr("width", x.bandwidth())
