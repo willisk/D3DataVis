@@ -48,7 +48,7 @@ function parseDirRec(dir, fullJson) {
             if (isXls) {
                 let fileNameOut = fileName.replace(/xls/g, 'json').replace(rawDir, dirOut);
                 let json = parseXls(fileName);
-                json.name = /([^\/\n]+)\.xls/g.exec(files[i])[1];
+                // json.name = /([^\/\n]+)\.xls/g.exec(files[i])[1];
                 fs.writeFile(fileNameOut, JSON.stringify(json));
                 Index.push(fileNameOut.replace(dirOut, ''));
                 fullJson[json.name] = json;

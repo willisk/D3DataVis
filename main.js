@@ -4,15 +4,17 @@
 const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/';
 
 // var all = await $.getJSON(urlBase + 'all.json');
-var all;
-$.getJSON(urlBase + 'all.json', (obj) => {
-    all = obj;
-});
+// var all;
+// $.getJSON(urlBase + 'all.json', (obj) => {
+//     all = obj;
+// });
 
-var indexJson;
-$.getJSON(urlBase + 'Index.json', (obj) => {
-    indexJson = obj;
-    let volumes = Object.keys(indexJson);
+
+var all;
+$.getJSON(urlBase + 'all.json', (data) => {
+
+    all = data;
+    let volumes = Object.keys(data);
     d3.select("#volume").selectAll("option")
         .data(volumes)
         .enter().append("option")
@@ -21,28 +23,35 @@ $.getJSON(urlBase + 'Index.json', (obj) => {
 
     function update() {
 
-        // update Selectors
-        let volumeVal = $('#volume').val();
+        // update dropdown selectors
+        let volumeVal = $('#volume option:selected').val();
 
-        let sheets = Object.keys(indexJson[volumeVal]);
-        d3.select("#sheet").selectAll("option")
+        let sheets = Object.keys(data[volumeVal]);
+        let sheetOptions = d3.select("#sheet").selectAll("option")
             .data(sheets)
+
+        sheetOptions
+            .exit().remove()
+
+        sheetOptions
             .enter().append("option")
-            .text(d => d)
+            .text(d => `${data[volumeVal][d].phrase}`.replace(/([^\(]+).*/, '$1'))
+            .property('value', d => d)
 
-        let sheetVal = $('#sheet').val();
+        let sheetVal = $('#sheet option:selected').val();
 
-        let rubrics = indexJson[volumeVal][sheetVal].map(sheet => sheet.phrase);
+        let rubrics = data[volumeVal][sheetVal].inquiry.map(inq => inq.key);
         d3.select("#rubric").selectAll("option")
             .data(rubrics)
             .enter().append("option")
             .text(d => d)
 
-        let rubricVal = $('#rubric').val();
+        let rubricVal = $('#rubric option:selected').val();
 
         console.log(volumeVal);
         console.log(sheetVal);
         console.log(rubricVal);
+        updateGraph(data[volumeVal][sheetVal], rubricVal);
     }
 
     d3.select('#volume')
@@ -64,167 +73,54 @@ $.getJSON(urlBase + 'Index.json', (obj) => {
 // INIT
 // --------------------------------------------------
 
-// const svg = d3.select("body").append("svg");
-// var margin = { top: 20, right: 20, bottom: 20, left: 20 },
-//     padding = { top: 60, right: 60, bottom: 60, left: 60 },
-//     outerWidth = 960,
-//     outerHeight = 500,
-//     innerWidth = outerWidth - margin.left - margin.right,
-//     innerHeight = outerHeight - margin.top - margin.bottom,
-//     width = innerWidth - padding.left - padding.right,
-//     height = innerHeight - padding.top - padding.bottom;
+var svg = d3.select("svg");
+var margin = { top: 20, right: 20, bottom: 100, left: 50 };
+var width = svg.attr("width") - margin.left - margin.right;
+var height = svg.attr("height") - margin.top - margin.bottom;
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// var x = d3.scaleIdentity()
-//     .domain([0, width]);
+var x = d3.scaleBand()
+    .rangeRound([0, width])
+    .padding(0.1);
 
-// var y = d3.scaleIdentity()
-//     .domain([0, height]);
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
 
+var xAxis = g.append("g")
+    .attr("transform", "translate(0," + height + ")")
 
-// function init() {
-//     svg
-//         .attr("width", outerWidth)
-//         .attr("height", outerHeight)
-//         .append("g")
-//         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-// }
+var yAxis = g.append("g");
 
-// init();
-// drawMargin();
+function updateGraph(sheet, rubric) {
 
-d3.csv("https://raw.githubusercontent.com/willisk/D3DataVis/master/data.csv").then(d => chart(d))
+    var groups = sheet.groups.map(d => d.name);
+    var data = sheet.inquiry.filter(d => d.key == rubric)[0].data[0]; // XXX not pretty, change
 
-function chart(csv) {
+    x.domain(groups);
+    y.domain([0, d3.max(data)]);
 
-    var keys = csv.columns.slice(2);
+    xAxis
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-90)");
 
-    var year = [...new Set(csv.map(d => d.Year))]
-    var states = [...new Set(csv.map(d => d.State))]
+    yAxis
+        .call(d3.axisLeft(y))
 
-    var options = d3.select("#year").selectAll("option")
-        .data(year)
-        .enter().append("option")
-        .text(d => d)
+    var bar = g.selectAll(".bar")
+        .data(data)
 
-    var svg = d3.select("#chart"),
-        margin = { top: 35, left: 35, bottom: 0, right: 0 },
-        width = +svg.attr("width") - margin.left - margin.right,
-        height = +svg.attr("height") - margin.top - margin.bottom;
-
-    var x = d3.scaleBand()
-        .range([margin.left, width - margin.right])
-        .padding(0.1)
-
-    var y = d3.scaleLinear()
-        .rangeRound([height - margin.bottom, margin.top])
-
-    var xAxis = svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .attr("class", "x-axis")
-
-    var yAxis = svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .attr("class", "y-axis")
-
-    var z = d3.scaleOrdinal()
-        .range(["steelblue", "darkorange", "lightblue"])
-        .domain(keys);
-
-    update(d3.select("#year").property("value"), 0)
-
-    function update(input, speed) {
-
-        var data = csv.filter(f => f.Year == input)
-
-        data.forEach(function (d) {
-            d.total = d3.sum(keys, k => +d[k])
-            return d
-        })
-
-        y.domain([0, d3.max(data, d => d3.sum(keys, k => +d[k]))]).nice();
-
-        svg.selectAll(".y-axis").transition().duration(speed)
-            .call(d3.axisLeft(y).ticks(null, "s"))
-
-        data.sort(d3.select("#sort").property("checked")
-            ? (a, b) => b.total - a.total
-            : (a, b) => states.indexOf(a.State) - states.indexOf(b.State))
-
-        x.domain(data.map(d => d.State));
-
-        svg.selectAll(".x-axis").transition().duration(speed)
-            .call(d3.axisBottom(x).tickSizeOuter(0))
-
-        var group = svg.selectAll("g.layer")
-            .data(d3.stack().keys(keys)(data), d => d.key)
-
-        group.exit().remove()
-
-        group.enter().append("g")
-            .classed("layer", true)
-            .attr("fill", d => z(d.key));
-
-        var bars = svg.selectAll("g.layer").selectAll("rect")
-            .data(d => d, e => e.data.State);
-
-        bars.exit().remove()
-
-        bars.enter().append("rect")
-            .attr("width", x.bandwidth())
-            .merge(bars)
-            .transition().duration(speed)
-            .attr("x", d => x(d.data.State))
-            .attr("y", d => y(d[1]))
-            .attr("height", d => y(d[0]) - y(d[1]))
-
-        var text = svg.selectAll(".text")
-            .data(data, d => d.State);
-
-        text.exit().remove()
-
-        text.enter().append("text")
-            .attr("class", "text")
-            .attr("text-anchor", "middle")
-            .merge(text)
-            .transition().duration(speed)
-            .attr("x", d => x(d.State) + x.bandwidth() / 2)
-            .attr("y", d => y(d.total) - 5)
-            .text(d => d.total)
-    }
-
-    var select = d3.select("#year")
-        .on("change", function () {
-            update(this.value, 750)
-        })
-
-    var checkbox = d3.select("#sort")
-        .on("click", function () {
-            update(select.property("value"), 750)
-        })
-}
-
-
-
-// var svg = d3.select("body").append("svg");
-
-
-// var margin = { top: 20, right: 20, bottom: 20, left: 20 },
-//     padding = { top: 60, right: 60, bottom: 60, left: 60 },
-//     outerWidth = 960,
-//     outerHeight = 500,
-//     innerWidth = outerWidth - margin.left - margin.right,
-//     innerHeight = outerHeight - margin.top - margin.bottom,
-//     width = innerWidth - padding.left - padding.right,
-//     height = innerHeight - padding.top - padding.bottom;
-
-// var x = d3.scale.identity()
-//     .domain([0, width]);
-
-// var y = d3.scale.identity()
-//     .domain([0, height]);
-
-
-function plotInquiry(data) {
-    console.log(data)
-    // pieChart(data);
+    bar
+        .exit().remove();
+    bar
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", (d, i) => x(groups[i]))
+        .attr("y", d => y(d))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d));
 }
