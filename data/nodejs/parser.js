@@ -206,6 +206,9 @@ function parseXls(fileName) {
 
             return values[length - 1];
         }
+        function getEng(keyStr, group, alternative = '') {
+            return group.hasOwnProperty(keyStr) ? group[keyStr] : alternative;
+        }
 
         // ------------------
         // add meta
@@ -225,7 +228,7 @@ function parseXls(fileName) {
                     category: findGroup(key, groupMeta),
                     categoryFr: findGroup(key, groupMetaFr),
                     nameFr: val,
-                    name: findGroup(key, groupRowEng, val),
+                    name: getEng(key, groupRowEng, val),
                     count: total[idx]
                 }
             );
