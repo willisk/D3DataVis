@@ -89,8 +89,11 @@ function parseXls(fileName) {
             phrase: "",
             phraseFr: "",
             total: 0,
-            groups: [],
-            inquiry: []
+            data: {},
+            category: {},
+            categoryFr: {},
+            nameFr: {},
+            count: {}
         };
 
         // search for 'TOTAL' keyword to determine bodyStart; first non-empty entry for phraseFr
@@ -107,37 +110,13 @@ function parseXls(fileName) {
         if (phraseIdx == -1)
             throw `Could not find phrase for sheet ${sheetName} in ${fileName}`;
 
+
         // ------------------------------------
         // body
 
         const body = sheetXls.slice(bodyStartIdx);
         const dataRows = body.map(row => Object.values(row));
         const dataSize = dataRows[0].length - 1;
-
-        for (let idx = 0; idx < dataRows.length; idx += 2) {
-
-            let row2Exists = idx + 1 < dataRows.length;
-            let row1 = dataRows[idx];
-            let row2 = row2Exists ? dataRows[idx + 1] : [];
-
-            let keyEngExists = (row1.length == row2.length) ? true : false;
-
-            let keyFr = row1.splice(0, 1)[0];
-            let keyEng = keyEngExists ? row2.splice(0, 1)[0] : keyFr;
-
-            let data = [row1];
-            if (row2Exists)
-                data.push(row2);
-
-            sheet.inquiry.push(
-                {
-                    key: keyEng,
-                    keyFr: keyFr,
-                    data: data
-                }
-            );
-        }
-
 
         // ------------------------------------
         // header
@@ -179,8 +158,13 @@ function parseXls(fileName) {
 
         var groupMeta = {}, groupMetaFr = {};
         if (groupMetaRowIdx != groupRowIdx) {
-            groupMeta = header[groupMetaRowIdx + 2]; // XXX always assume eng version is 2 below french ?
             groupMetaFr = header[groupMetaRowIdx];
+            groupMeta = groupMetaFr;
+
+            let groupMetaRowEng = header[groupMetaRowIdx + 2];  // XXX always assume eng version is 2 below french ?
+            for (let key of Object.keys(groupMetaRowEng))
+                groupMeta[key] = groupMetaRowEng[key];
+
             header.splice(groupMetaRowIdx, 3);  // dangerous, verify
         }
 
@@ -216,28 +200,60 @@ function parseXls(fileName) {
         sheet.meta = header.slice(0, groupMetaRowIdx);
 
         // ------------------
-        // build sheet groups
+        // build sheet groups and categories
+
+        let groups = [];
 
         Object.entries(groupRow).forEach((entry, idx) => {
 
             let key = entry[0];
             let val = entry[1];
 
-            sheet.groups.push(
-                {
-                    category: findGroup(key, groupMeta),
-                    categoryFr: findGroup(key, groupMetaFr),
-                    nameFr: val,
-                    name: getEng(key, groupRowEng, val),
-                    count: total[idx]
-                }
-            );
+            let name = getEng(key, groupRowEng, val);
+            let category = findGroup(key, groupMeta);
+            let nameFr = val;
+            let categoryFr = findGroup(key, groupMetaFr);
+
+            sheet.count[name] = total[idx];
+
+            if (category != '') {
+                sheet.category[name] = category;
+                sheet.categoryFr[name] = categoryFr;
+            }
+
+            sheet.nameFr[name] = nameFr;
+
+            groups.push(name);
         });
+
+        // ------------------
+        // data
+
+        for (let idx = 0; idx < dataRows.length; idx += 2) {
+
+            let row2Exists = idx + 1 < dataRows.length;
+            let row1 = dataRows[idx];
+            let row2 = row2Exists ? dataRows[idx + 1] : [];
+
+            let keyEngExists = (row1.length == row2.length) ? true : false;
+
+            let keyFr = row1.splice(0, 1)[0];
+            let keyEng = keyEngExists ? row2.splice(0, 1)[0] : keyFr;
+
+            // let data = [row1];
+            // if (row2Exists)
+            //     data.push(row2);
+
+            let data = {};
+            for (let i in row1)
+                data[groups[i]] = row1[i];
+
+            sheet.data[keyEng] = data;
+        }
+
 
         jsonDataParsed[sheetName] = sheet;
     }
 
     return jsonDataParsed;
 }
-
-// const json = parseXls(path.join(rawDir, 'fl_464_Volume_B.xls'));
