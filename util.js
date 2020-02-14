@@ -9,8 +9,8 @@ function groupIdx(sheet, findGroup) {
 }
 
 function filterGroup(volume, filterGroup) {
-    for (let sheetName of Object.keys(volume)) {
-        let sheet = volume[sheetName];
+    for (let sheet of Object.values(volume)) {
+        let groups
         let idx = groupIdx(sheet, filterGroup);
         if (idx != -1) {
             sheet.groups.splice(idx, 1);    //remove group

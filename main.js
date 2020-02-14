@@ -1,6 +1,7 @@
 
 
-const urlBase = 'https://raw.githubusercontent.com/quenting44/desinformation/master/data/parsed/';
+// const urlBase = 'https://raw.githubusercontent.com/quenting44/desinformation/master/data/parsed/';
+const urlBase = 'https://raw.githubusercontent.com/willisk/D3DataVis/master/data/parsed/';
 // const urlBase = 'http://localhost:4000/Project-Data-Visualization/';
 
 

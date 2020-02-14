@@ -90,6 +90,7 @@ function parseXls(fileName) {
             phraseFr: "",
             total: 0,
             data: {},
+            groups: [],
             category: {},
             categoryFr: {},
             nameFr: {},
@@ -202,8 +203,6 @@ function parseXls(fileName) {
         // ------------------
         // build sheet groups and categories
 
-        let groups = [];
-
         Object.entries(groupRow).forEach((entry, idx) => {
 
             let key = entry[0];
@@ -223,7 +222,7 @@ function parseXls(fileName) {
 
             sheet.nameFr[name] = nameFr;
 
-            groups.push(name);
+            sheet.groups.push(name);
         });
 
         // ------------------
@@ -246,7 +245,7 @@ function parseXls(fileName) {
 
             let data = {};
             for (let i in row1)
-                data[groups[i]] = row1[i];
+                data[sheet.groups[i]] = row1[i];
 
             sheet.data[keyEng] = data;
         }
