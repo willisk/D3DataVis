@@ -1,7 +1,7 @@
 
 
-// const urlBase = 'https://raw.githubusercontent.com/quenting44/desinformation/master/data/parsed/';
-const urlBase = 'http://localhost:4000/Project-Data-Visualization/';
+const urlBase = 'https://raw.githubusercontent.com/quenting44/desinformation/master/data/parsed/';
+// const urlBase = 'http://localhost:4000/Project-Data-Visualization/';
 
 
 
@@ -144,17 +144,17 @@ var margin = { top: 50, right: 80, bottom: 50, left: 80 },
     width = Math.min(400, window.innerWidth / 4) - margin.left - margin.right,
     height = Math.min(width, window.innerHeight - margin.top - margin.bottom);
 
-var radarChartOptions2 = {
-    w: 290,
+var radarChartOptions = {
+    w: 650,
     h: 350,
     margin: margin,
     maxValue: 60,
     levels: 6,
     roundStrokes: false,
-    color: d3.scaleOrdinal().range(["#AFC52F", "#ff6600", "#2a2fd4"]),
+    // color: d3.scaleOrdinal().range(["#AFC52F", "#ff6600", "#2a2fd4"]),
     format: '.0f',
-    legend: { title: 'Organization XYZ', translateX: 100, translateY: 40 },
-    unit: '$'
+    legend: { title: '', translateX: 100, translateY: 40 },
+    unit: ''
 };
 
 var all;
@@ -166,11 +166,11 @@ $.getJSON(urlBase + 'all.json', (data) => {
 
     var body = d3.select('body');
 
-    // var svg = body.append('svg')
-    //     .attr('width', 650)
-    //     .attr('height', 400)
+    var svg = body.append('svg')
+        .attr('width', 650)
+        .attr('height', 400)
 
-    // var bChart = new BarChart(svg);
+    var bChart = new BarChart(svg);
 
     sel = new DatasetSelector(data);
     sel.updateCallBack = function (volumeVal, sheetVal, rubricVal, isInit) {
@@ -179,7 +179,7 @@ $.getJSON(urlBase + 'all.json', (data) => {
 
         let barData = sheet.inquiry[rubricVal].data[0];
         let speed = isInit ? 0 : 500;
-        // bChart.updateGraph(barData, groups, speed);
+        bChart.updateGraph(barData, groups, speed);
 
         var radarData = sheet.groups.map(function (d, i) {
             return {
@@ -193,7 +193,7 @@ $.getJSON(urlBase + 'all.json', (data) => {
             };
         });
         console.log(radarData)
-        let svg_radar2 = RadarChart(".radarChart2", radarData, radarChartOptions2);
+        let svg_radar2 = RadarChart(".radarChart2", radarData, radarChartOptions);
     };
     sel.init();
 });

@@ -10,20 +10,7 @@ const sin = Math.sin;
 const cos = Math.cos;
 const HALF_PI = Math.PI / 2;
 
-const RadarChart = function RadarChart(parent_selector, data) {
-
-    var options = {
-        w: 290,
-        h: 350,
-        margin: margin,
-        maxValue: 60,
-        levels: 6,
-        roundStrokes: false,
-        color: d3.scaleOrdinal().range(["#AFC52F", "#ff6600", "blue"]),
-        format: '.0f',
-        legend: { title: 'Organization XYZ', translateX: 100, translateY: 40 },
-        unit: '$'
-    };
+const RadarChart = function RadarChart(parent_selector, data, options) {
 
     //Wraps SVG text - Taken from http://bl.ocks.org/mbostock/7555321
     const wrap = (text, width) => {
@@ -274,5 +261,83 @@ const RadarChart = function RadarChart(parent_selector, data) {
     /////////////////////////////////////////////////////////
     //////// Append invisible circles for tooltip ///////////
     /////////////////////////////////////////////////////////
+
+    //Wrapper for the invisible circles on top
+    const blobCircleWrapper = g.selectAll(".radarCircleWrapper")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "radarCircleWrapper");
+
+    //Append a set of invisible circles on top for the mouseover pop-up
+    blobCircleWrapper.selectAll(".radarInvisibleCircle")
+        .data(d => d.axes)
+        .enter().append("circle")
+        .attr("class", "radarInvisibleCircle")
+        .attr("r", cfg.dotRadius * 1.5)
+        .attr("cx", (d, i) => rScale(d.value) * cos(angleSlice * i - HALF_PI))
+        .attr("cy", (d, i) => rScale(d.value) * sin(angleSlice * i - HALF_PI))
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", function (d, i) {
+            tooltip
+                .attr('x', this.cx.baseVal.value - 10)
+                .attr('y', this.cy.baseVal.value - 10)
+                .transition()
+                .style('display', 'block')
+                .text(Format(d.value) + cfg.unit);
+        })
+        .on("mouseout", function () {
+            tooltip.transition()
+                .style('display', 'none').text('');
+        });
+
+    const tooltip = g.append("text")
+        .attr("class", "tooltip")
+        .attr('x', 0)
+        .attr('y', 0)
+        .style("font-size", "12px")
+        .style('display', 'none')
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em");
+
+    if (cfg.legend !== false && typeof cfg.legend === "object") {
+        let legendZone = svg.append('g');
+        let names = data.map(el => el.name);
+        if (cfg.legend.title) {
+            let title = legendZone.append("text")
+                .attr("class", "title")
+                .attr('transform', `translate(${cfg.legend.translateX},${cfg.legend.translateY})`)
+                .attr("x", cfg.w - 70)
+                .attr("y", 10)
+                .attr("font-size", "12px")
+                .attr("fill", "#404040")
+                .text(cfg.legend.title);
+        }
+        let legend = legendZone.append("g")
+            .attr("class", "legend")
+            .attr("height", 100)
+            .attr("width", 200)
+            .attr('transform', `translate(${cfg.legend.translateX},${cfg.legend.translateY + 20})`);
+        // Create rectangles markers
+        legend.selectAll('rect')
+            .data(names)
+            .enter()
+            .append("rect")
+            .attr("x", cfg.w - 65)
+            .attr("y", (d, i) => i * 20)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", (d, i) => cfg.color(i));
+        // Create labels
+        legend.selectAll('text')
+            .data(names)
+            .enter()
+            .append("text")
+            .attr("x", cfg.w - 52)
+            .attr("y", (d, i) => i * 20 + 9)
+            .attr("font-size", "11px")
+            .attr("fill", "#737373")
+            .text(d => d);
+    }
     return svg;
 }

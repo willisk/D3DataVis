@@ -14,21 +14,25 @@ var Index = parseDirRec(rawDir, fullJson);
 fs.writeFile(path.join(dirOut, 'index.txt'), Index.join('\n'));
 fs.writeFile(path.join(dirOut, 'all.json'), JSON.stringify(fullJson));
 
-// var IndexJson = {};
-// for (let volume of Object.keys(fullJson)) {
-//     IndexJson[volume] = {};
-//     for (let sheet of Object.keys(fullJson[volume])) {
-//         IndexJson[volume][sheet] = {
-//             phrase: fullJson[volume][sheet].phrase,
-//             phraseFr: fullJson[volume][sheet].phraseFr,
-//             inquiry: fullJson[volume][sheet].inquiry.map(obj => obj.key),
-//             inquiryFr: fullJson[volume][sheet].inquiry.map(obj => obj.keyFr),
-//             groups: fullJson[volume][sheet].groups.map(gr => gr.name),
-//             groupsFr: fullJson[volume][sheet].groups.map(gr => gr.nameFr)
-//         };
+// var filtered = fullJson;
+// for (let volume of Object.keys(filtered)) {
+//     for (let sheet of Object.keys(filtered[volume])) {
+//         let groups = filtered[volume][sheet].groups;
+//         groups = groups.slice(1);
+
+//         let inquiry = filtered[volume][sheet].inquiry;
+//         console.log(inquiry);
+//         for (let inq of inquiry) {
+//             if (inq.data[0] == undefined) {
+//                 console.log(inq);
+//                 continue;
+//             }
+//             inq.data[0] = inq.data[0].slice(1);
+//             inq.data[1] = inq.data[1].slice(1);
+//         }
 //     }
 // }
-// fs.writeFile(path.join(dirOut, 'Index.json'), JSON.stringify(IndexJson));
+// fs.writeFile(path.join(dirOut, 'filtered.json'), JSON.stringify(filtered));
 
 
 function parseDirRec(dir, fullJson) {
