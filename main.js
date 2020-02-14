@@ -162,6 +162,9 @@ $.getJSON(urlBase + 'all.json', (data) => {
 
     all = data; //for debugging
 
+    filterGroup(data["fl_464_Volume_A"], 'UE28');
+    filterGroup(data["fl_464_Volume_B"], 'UE28');
+
 
 
     var body = d3.select('body');
@@ -192,7 +195,6 @@ $.getJSON(urlBase + 'all.json', (data) => {
                 })
             };
         });
-        console.log(radarData)
         let svg_radar2 = RadarChart(".radarChart2", radarData, radarChartOptions);
     };
     sel.init();
